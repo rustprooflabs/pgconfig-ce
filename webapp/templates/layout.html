@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+
+<html lang="en">
+    <head>
+        {% include '_layout_header.html' %}
+    </head>
+
+
+    <body>
+        <div class="page">
+            {% block body %}
+                <div class="header'">
+                    {% include 'header.html' %}
+                </div>
+
+                <div class="main_content">
+                    {% block main_content %}
+                        Main content will go here...
+                    {% endblock main_content %}
+                </div>
+
+                <div class="footer">
+                    {% include 'footer.html' %}
+                </div>
+            {% endblock body %}
+        </div>
+    
+    </body>
+
+</html>

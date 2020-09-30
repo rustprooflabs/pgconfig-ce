@@ -1,0 +1,56 @@
+{% extends 'layout.html' %}
+{% block main_content %}
+
+<div class="container-fluid">
+    <h1 class="row text-center p-4">
+      Postgres Config Changes: {{ vers1 }} to {{ vers2 }}
+    </h1>
+
+    <p class="row text-center">
+      Select two versions of Postgres to see the differences between their
+      &nbsp;<code>postgresql.conf</code>&nbsp; parameters and defaults.  Parameters that remain
+      the same in both versions are not displayed.
+    </p>
+
+    <h2 class="row text-center">
+      Upgrade from&nbsp;{{ vers1_html | safe }}&nbsp;to&nbsp;{{ vers2_html | safe }}
+    </h2>
+
+    <div class="row text-center">
+      <h2 class="col-md-3 border border-2 m-1 p-3 alert alert-success">
+        New: {{ changes_stats['new'] }}
+      </h2>
+
+      <h2 class="col-md-3 border border-2 m-1 p-3 alert alert-warning">
+        Updated: {{ changes_stats['updated'] }}
+      </h2>
+
+      <h2 class="col-md-3 border border-2 m-1 p-3 alert alert-danger">
+        Removed: {{ changes_stats['removed'] }}
+      </h2>
+
+    </div>
+
+    <div class="row text-center p-1">
+        <div class="col-md-10">
+
+            <div id="config_table_parent">
+              {{ config_changes | safe }}
+            </p>
+    
+    </div>
+
+
+</div>
+
+
+<script type=text/javascript>
+  $(function() {
+    $('select').on('change', function() {
+      var vers1 = $('select#version_1 option:selected').attr('value');
+      var vers2 = $('select#version_2 option:selected').attr('value');
+      window.location.href = '/param/change/' + vers1 + '/' + vers2;
+    });
+  });
+</script>
+{% endblock main_content %}

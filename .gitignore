@@ -1,0 +1,6 @@
+webapp/__pycache__/
+pytest.xml
+tests/__pycache__/
+docs/_build/
+.coverage
+*.log

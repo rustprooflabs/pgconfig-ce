@@ -1,0 +1,39 @@
+{% extends 'layout.html' %}
+{% block main_content %}
+
+<div class="container-fluid">
+    <h1 class="row text-center p-4">
+      Postgres Configuration across Versions
+    </h1>
+
+    <p class="row text-center">
+      Select a parameter to view the defaults across versions of PostgreSQL.
+    </p>
+
+    <div class="row text-center p-2">
+      {{ select_html | safe }}
+    </div>
+
+    <div class="row text-center p-1">
+        <div class="col-md-10">
+            
+              <div id="config_table_parent">
+                {{ config_full | safe }}
+              </p>
+        
+    </div>
+
+
+</div>
+
+<script type=text/javascript>
+  $(function() {
+    $('select').on('change', function() {
+      var pg_param = $('select#selection_param option:selected').attr('value');
+      window.location.href = '/param/' + pg_param;
+    });
+  });
+</script>
+
+
+{% endblock main_content %}

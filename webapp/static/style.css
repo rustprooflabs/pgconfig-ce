@@ -1,0 +1,59 @@
+.page {
+    background-color: #e6f0ff;
+    color: #1a1a1a;
+}
+
+header {
+  background-color: #66a3ff;
+}
+
+body {
+    background-color: #e6e6e6;
+    font-family: "Gill Sans", sans-serif;
+    text-rendering: optimizeLegibility;
+    font-variant: normal;
+}
+
+h1, h2 {
+  font-variant: small-caps;
+}
+
+body html {
+  height: 100%;
+  font-size: 1.4em;
+}
+
+nav li {
+  font-size: 1.6rem;
+  margin: 0.4rem;
+}
+
+label {
+  font-size: 1.5rem;
+}
+
+.footer {
+    padding-top: 20px;
+    padding-bottom: 20px;
+    font-size:12px;
+    text-align:center
+}
+
+.fa {
+  font-size: 30px;
+  text-align: center;
+  text-decoration: none;
+  padding: 5px;
+}
+
+.fa:hover {
+    opacity: 0.7;
+}
+
+.error {
+  color: red;
+}
+
+.text-center {
+  justify-content: center;
+}

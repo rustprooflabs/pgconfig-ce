@@ -1,0 +1,42 @@
+{% extends 'layout.html' %}
+{% block main_content %}
+
+<div class="container-fluid">
+    <h1 class="row text-center p-4">
+      About
+    </h1>
+
+    <div class="row text-center p-2">
+    	<p class="col-md-8">
+    		The postgresql.conf comparison tool was created to
+    		make it easier to track changes to the database's main configuration file.
+	      	These configuration options, referred to by the Pg hackers as
+	      	GUCs
+	      	(<a target="_blank" href="https://www.postgresql.org/docs/current/acronyms.html">
+	      	Grand Unified Configuration</a>),
+	      	do change over time with major versions.  These changes typically reflect new features added, existing features
+	      	improved, and other changes.
+    	</p>
+
+        <p class="col-md-8">
+            <a target="_blank" href="https://blog.rustprooflabs.com/2019/09/prepare-for-postgres12-config-changes">
+                This blog post
+            </a> illustrates how this tool can be used to research
+            and prepare for upgrading PostgreSQL major versions.
+
+        </p>
+    </div>
+
+    <h2 class="row text-center p-3">
+    	Versions Available
+    </h2>
+
+    <div class="row text-center p-2">
+    	<p class="col-md-8">
+    		Default configurations have been loaded for all major Postgres
+    		versions starting with 9.2.  Configurations for new versions will be added as they are released.  Older versions may be added as time permits.
+    	</p>
+    </div>
+</div>
+
+{% endblock main_content %}
