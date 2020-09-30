@@ -1,15 +1,9 @@
 # postgresql.conf compare
 
-Compares parameters defined and their default values between PostgreSQL major versions.
+Compares parameters defined and their default values between PostgreSQL major versions.  [Hosted by RustProof Labs](https://pgconfig.rustprooflabs.com/).
 
 
 ## Deployment Instructions
-
-### Production
-
-Deploys via GitLab CI.
-
-### Development
 
 > Note:  Need to update the sub-version of Python over time.  Can use simply
 `python3` but that can lead to using older unsupported versions based on distro-defaults.
@@ -39,14 +33,15 @@ python run_server.py
 
 ## Add new config files
 
-Build target version of Postgres from source.  [Example in post](https://blog.rustprooflabs.com/2019/07/postgresql-postgis-install-from-source-raspberry-pi). 
+To add a new configuration version, build target Postgres version from source.  [Example in post](https://blog.rustprooflabs.com/2019/07/postgresql-postgis-install-from-source-raspberry-pi).  Take the contents of the `postgresql.conf` file, 
+clean out all comments, uncomment all default GUCs.  Place in `webapp/config`
+and update `VERSIONS` list ini `pgconfig.py`.
 
+Example of getting configuration after building from source.
 
 ```bash
 cat /usr/local/pgsql/data/postgresql.conf
 ```
-
-Clean out all comments, uncomment all default GUCs.
 
 
 ## Unit tests
