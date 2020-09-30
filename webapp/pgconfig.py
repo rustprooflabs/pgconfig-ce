@@ -6,7 +6,7 @@ import logging
 from webapp import config
 
 LOGGER = logging.getLogger(__name__)
-VERSIONS = ['12', '11', '10', '9.6', '9.5',
+VERSIONS = ['13', '12', '11', '10', '9.6', '9.5',
             '9.4', '9.3', '9.2']
 
 VERSION_REDIRECTS = [{'version': '12beta4', 'redirect': '12'}]
@@ -241,7 +241,7 @@ def custom_config_updated_params(changes, vers1):
     return changes[(changes[vers1] != changes[vers2])].dropna()
 
 
-def parse_pg_config(version='11', custom_config=None):
+def parse_pg_config(version='13', custom_config=None):
     """Parses PostgreSQL configuration (postgresql.conf).
 
     Parameters
