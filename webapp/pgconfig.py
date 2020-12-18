@@ -362,7 +362,7 @@ def _parse_config_lines(lines):
 
     dups = list()
     for key in dup_keys:
-        print(f'Finding configs for {key}')
+        LOGGER.debug(f'Finding configs for {key}')
         for row in pg_config_options:
             if row[0] == key:
                 dups.append(row)
@@ -390,7 +390,10 @@ def _pg_config_filepath(version):
     return filepath
 
 def _parse_line_remove_comment(line):
-    """Parses line from config, removes comments.
+    """Parses line from config, removes comments and trailing spaces.
+
+    Lines starting with "#" are skipped entirely.  Lines with comments after
+    the parameter retain their parameter.
 
     Parameters
     --------------
