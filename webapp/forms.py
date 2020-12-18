@@ -1,7 +1,6 @@
 """Provides Flask Forms related functionality."""
-from wtforms import (SelectField, StringField, TextAreaField, SubmitField, ValidationError,
-                     PasswordField)
-from wtforms.validators import DataRequired, Email, Length, EqualTo
+from wtforms import TextAreaField
+from wtforms.validators import DataRequired
 from flask_wtf import FlaskForm
 
 PG_EXAMPLE = """For example:
@@ -31,7 +30,3 @@ class PostgresConfigForm(FlaskForm):
                          validators=[DataRequired()],
                          render_kw={"placeholder": PG_EXAMPLE,
                          			"rows": 20})
-
-
-
-

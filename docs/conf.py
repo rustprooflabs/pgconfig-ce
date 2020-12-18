@@ -21,8 +21,7 @@ project = 'pgConfig'
 copyright = '2018 - 2020, Ryan Lambert, RustProof Labs'
 author = 'Ryan Lambert, RustProof Labs'
 
-# The full version, including alpha/beta/rc tags
-release = '0.0.1'
+version = '0.0.5'
 
 
 # -- General configuration ---------------------------------------------------
@@ -58,3 +57,13 @@ html_theme = 'sphinx_rtd_theme'
 html_static_path = ['_static']
 
 html_show_sphinx = False
+
+html_theme_options = {
+    'canonical_url': '',
+    'logo_only': False,
+    'display_version': True
+}
+
+extensions.append('autoapi.extension')
+autoapi_type = 'python'
+autoapi_dirs = ['../']

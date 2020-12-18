@@ -1,6 +1,6 @@
 from datetime import datetime as dt
 import logging
-from flask import render_template, request, jsonify, redirect
+from flask import render_template, redirect
 from webapp import app, pgconfig, forms
 
 
@@ -27,7 +27,7 @@ def view_about():
 
 @app.route('/')
 def view_root_url():
-    return redirect_param_change_with_defaults()
+    return redirect_param_change()
 
 
 @app.route('/param')
@@ -47,7 +47,7 @@ def view_app_params(pg_param):
 
 
 @app.route('/param/change')
-def redirect_param_change_with_defaults():
+def redirect_param_change():
     return redirect('/param/change/{}/{}'.format('11', '13'))
 
 

@@ -13,6 +13,19 @@ CONFIG_NO_DUPS = """
 listen_addresses = '*'
 """
 
+CONFIG_WITH_EMPTY_LINE = """
+listen_addresses = '*'
+
+shared_buffers = '500MB'
+"""
+
+CONFIG_WITH_COMMENTS = """
+#listen_addresses = '*'
+shared_buffers = '500MB' # Trailing comment
+"""
+
+PG_INVALID_VERSION = '9.9'
+
 class PGConfigTests(unittest.TestCase):
 
     def test_pgconfig_parse_pg_config_returns_Tuple(self):
@@ -67,4 +80,39 @@ class PGConfigTests(unittest.TestCase):
         _, dups = pgconfig.compare_custom_config(version, config_raw)
         actual = len(dups)
         expected = 0
+        self.assertEqual(expected, actual)
+
+    def test_pgconfig_compare_custom_config_invalid_version_raises_ValueError(self):
+        version = PG_INVALID_VERSION
+        config_raw = CONFIG_NO_DUPS
+        with self.assertRaises(ValueError):
+            pgconfig.compare_custom_config(version, config_raw)
+
+    def test_pgconfig_get_config_lines_skips_empty_line(self):
+        version = '13'
+        config_raw = CONFIG_WITH_EMPTY_LINE
+        results = pgconfig._get_config_lines(version, config_raw)
+        actual = len(results)
+        expected = 2
+        self.assertEqual(expected, actual)
+
+    def test_pgconfig_get_config_lines_skips_line_starting_with_comment(self):
+        """Ensures the line starting with a comment is skipped entirely.
+        """
+        version = '13'
+        config_raw = CONFIG_WITH_COMMENTS
+        results = pgconfig._get_config_lines(version, config_raw)
+        actual = len(results)
+        expected = 1
+        self.assertEqual(expected, actual)
+
+
+    def test_pgconfig_get_config_lines_skips_comment_after_param(self):
+        """Ensures the value parsed does not contain the trailing comment
+        """
+        version = '13'
+        config_raw = CONFIG_WITH_COMMENTS
+        results = pgconfig._get_config_lines(version, config_raw)
+        actual = results[0]
+        expected = "shared_buffers = '500MB'"
         self.assertEqual(expected, actual)
