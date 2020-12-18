@@ -13,6 +13,8 @@ CONFIG_NO_DUPS = """
 listen_addresses = '*'
 """
 
+PG_INVALID_VERSION = '9.9'
+
 class PGConfigTests(unittest.TestCase):
 
     def test_pgconfig_parse_pg_config_returns_Tuple(self):
@@ -68,3 +70,9 @@ class PGConfigTests(unittest.TestCase):
         actual = len(dups)
         expected = 0
         self.assertEqual(expected, actual)
+
+    def test_pgconfig_compare_custom_config_invalid_version_raises_ValueError(self):
+        version = PG_INVALID_VERSION
+        config_raw = CONFIG_NO_DUPS
+        with self.assertRaises(ValueError):
+            pgconfig.compare_custom_config(version, config_raw)

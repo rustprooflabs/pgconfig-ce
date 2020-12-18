@@ -50,9 +50,9 @@ def compare_custom_config(vers1, config_raw):
         List of duplicates found in custom configuration
     """
     if not vers1 in VERSIONS:
-        raise ValueError('Version %s not available', vers1)
+        raise ValueError(f'Version {vers1} not available')
 
-    config_all = dict()    
+    config_all = dict()
     custom_config, dups = parse_pg_config(version='custom',
                                           custom_config=config_raw)
     LOGGER.debug('Custom config: %s', custom_config)
@@ -68,6 +68,20 @@ def compare_custom_config(vers1, config_raw):
 
 def config_to_html(config_summary,
                    filter_value='max_parallel_workers_per_gather'):
+    """Converts `config_summary` to HTML table.  Filters for `filter_value`.
+
+    Parameters
+    --------------------
+    config_summary : pandas.DataFrame
+
+    filter_value : str
+        (Optional) value to filter for.  Has default set.
+
+    Returns
+    --------------------
+    html : str
+        HTML for data table to display
+    """
     data = config_summary[config_summary['parameter'] == filter_value]
     html = _df_to_html(data)
     return html
@@ -146,7 +160,7 @@ def config_changes_html(changes):
 
 def config_changes_stats(changes, vers1, vers2):
     """Generates basic statistics for changes between two versions.
-    
+
     Parameters
     ---------------
     changes : pandas.DataFrame
@@ -173,7 +187,7 @@ def config_changes_stats(changes, vers1, vers2):
 
 def custom_config_changes_stats(changes, vers1):
     """Generates basic statistics for changes between two versions.
-    
+
     Parameters
     ---------------
     changes : pandas.DataFrame
@@ -200,7 +214,7 @@ def custom_config_changes_stats(changes, vers1):
 
     updatedtmp = custom_config_updated_params(changes, vers1)
     updated = updatedtmp.count().max()
-    
+
     change_stats['invalid_param_custom'] = invalid_param_custom
     change_stats['default_setting'] = default_setting
     change_stats['updated'] = updated
@@ -208,7 +222,7 @@ def custom_config_changes_stats(changes, vers1):
 
 def custom_config_invalid_params(changes, vers1):
     """Generates data frame of invalid parameters in custom configuration.
-    
+
     Parameters
     ---------------
     changes : pandas.DataFrame
@@ -224,7 +238,7 @@ def custom_config_invalid_params(changes, vers1):
 
 def custom_config_updated_params(changes, vers1):
     """Generates data frame of updated parameters in custom configuration.
-    
+
     Updated parameters have changed from the base default version.
 
     Parameters
@@ -298,16 +312,14 @@ def _get_config_lines(version, custom_config):
                 line = _parse_line_remove_comment(line_raw)
                 if line == '':
                     continue
-                else:
-                    lines.append(line)
+                lines.append(line)
     else:
         # Load from `custom_config`
         for line_raw in custom_config.splitlines():
             line = _parse_line_remove_comment(line_raw)
             if line == '':
                 continue
-            else:
-                lines.append(line)
+            lines.append(line)
 
     return lines
 
