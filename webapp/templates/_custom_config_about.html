@@ -1,5 +1,21 @@
+<hr />
+
 <p class="row text-center p-1">
 	The custom config tool compares the contents of your postgresql.conf
 	against the defaults for the selected version.
 	Commented out parameters are discarded, just as they would be by Postgres.
+
+    This query against pg_catalog.pg_settings prepares
+    the settings as seen by the current session. This can be helpful
+    to see exactly what configuration is active <strong>right now</strong>.  It is also useful
+    for using various DBaaS (Database as a Service) offerings, such as Amazon RDS,
+    when access to the postgresql.conf file is not an option.
 </p>
+<pre  class="row text-center">
+    <code>
+        SELECT name || ' = ' || '''' || setting || ''''
+            FROM pg_catalog.pg_settings;
+    </code>
+</pre>
+
+<hr />
