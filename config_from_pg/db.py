@@ -7,21 +7,22 @@ import psycopg2.extras
 
 
 def prepare():
-    """Ensures helper objects exists for generating the config file from pg_settings
+    """Ensures helper objects exist in DB.
     """
     print('Preparing database objects...')
-    _ensure_schema_exists()
-    _ensure_view_exists()
+    ensure_schema_exists()
+    ensure_view_exists()
     print('Database objects ready.')
 
 
-def _ensure_schema_exists():
+def ensure_schema_exists():
     """Ensures the `pgconfig` schema exists."""
     sql_raw = 'CREATE SCHEMA IF NOT EXISTS pgconfig;'
     _execute_query(sql_raw, params=None, qry_type='ddl')
 
 
-def _ensure_view_exists():
+def ensure_view_exists():
+    """Ensures the view `pgconfig.settings` exists."""
     sql_file = 'create_pgconfig_settings_view.sql'
     with open(sql_file) as f:
         sql_raw = f.read()

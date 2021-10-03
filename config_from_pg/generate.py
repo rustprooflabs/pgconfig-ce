@@ -1,12 +1,22 @@
+"""Generates config based on pgconfig.settings.
+"""
 import db
 
 def run():
+    """Generates config from defined database connection.
+    """
     db.prepare()
-    default_config = _get_defaults()
-    _save_config(data=default_config)
+    default_config = get_defaults()
+    save_config(data=default_config)
 
 
-def _get_defaults():
+def get_defaults():
+    """Queries Postgres for default settings.
+
+    Returns
+    --------------------
+    results : list
+    """
     sql_raw = """
     SELECT default_config_line
         FROM pgconfig.settings
@@ -17,7 +27,15 @@ def _get_defaults():
     results = db.select_multi(sql_raw)
     return results
 
-def _save_config(data, filename='postgresql.conf.default'):
+def save_config(data, filename='postgresql.conf.default'):
+    """Saves configuration file from `data`.
+
+    Parameters
+    ---------------------
+    data : list
+    filename : str
+        Defaults to postgresql.conf.default
+    """
     # Repack w/out the dict portion
     lines = list()
     for row in data:
@@ -30,3 +48,5 @@ def _save_config(data, filename='postgresql.conf.default'):
         f.writelines('%s\n' % l for l in lines)
 
 
+if __name__ == "__main__":
+    run()
