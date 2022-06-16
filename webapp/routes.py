@@ -48,7 +48,7 @@ def view_app_params(pg_param):
 
 @app.route('/param/change')
 def redirect_param_change():
-    return redirect('/param/change/{}/{}'.format('11', '13'))
+    return redirect('/param/change/{}/{}'.format('12', '14'))
 
 
 @app.route('/param/change/<vers1>/<vers2>')
@@ -84,7 +84,7 @@ def view_app_param_changes(vers1, vers2):
 
 @app.route('/custom')
 def redirect_custom_with_defaults():
-    return redirect('/custom/{}'.format('13'))
+    return redirect('/custom/{}'.format('14'))
 
 
 @app.route('/custom/<vers1>', methods=['GET', 'POST'])
