@@ -6,7 +6,7 @@ import logging
 from webapp import config
 
 LOGGER = logging.getLogger(__name__)
-VERSIONS = ['15', '14', '13', '12', '11', '10', '9.6', '9.5',
+VERSIONS = ['16beta1', '15', '14', '13', '12', '11', '10', '9.6', '9.5',
             '9.4', '9.3', '9.2']
 
 VERSION_REDIRECTS = [{'version': '12beta4', 'redirect': '12'}]
