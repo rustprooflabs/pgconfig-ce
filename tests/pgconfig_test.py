@@ -116,3 +116,14 @@ class PGConfigTests(unittest.TestCase):
         actual = results[0]
         expected = "shared_buffers = '500MB'"
         self.assertEqual(expected, actual)
+
+    def test_pgconfig_pg_config_filepath_raises_value_error_invalid_version(self):
+        version = 'ZZZ-Never-Real'
+        self.assertRaises(ValueError, pgconfig._pg_config_filepath, version)
+
+    def test_pgconfig_pg_config_filepath_returns_string_valid_version(self):
+        version = '15'
+        results = pgconfig._pg_config_filepath(version=version)
+        actual = type(results)
+        expected = str
+        self.assertEqual(expected, actual)
