@@ -383,6 +383,12 @@ def _pg_config_filepath(version):
     filepath : str
         Full path to the config file for specific version
     """
+    # Provide projection against path injection through version selection
+    # This check is currently redundant of the check in config_changes()
+    # but better safe than sorry
+    if version not in VERSIONS:
+        raise ValueError('Invalid version')
+
     config_path = os.path.join(config.CURR_PATH, 'config')
     filename = f'postgresql-{version}.conf'
     filepath = os.path.join(config_path, filename)
