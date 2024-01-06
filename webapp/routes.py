@@ -1,7 +1,7 @@
 from datetime import datetime as dt
 import logging
 from flask import render_template, redirect
-from webapp import app, pgconfig, forms
+from webapp import app, pgconfig, forms, pgconfig2
 
 
 LOGGER = logging.getLogger(__name__)
@@ -44,6 +44,37 @@ def view_app_params(pg_param):
                            year=get_year(),
                            config_full=config_full,
                            select_html=select_html)
+
+
+@app.route('/param/change2/<vers1>/<vers2>')
+def view_app_param_changes_v2(vers1, vers2):
+    vers1_redirect = pgconfig.check_redirect(version=vers1)
+    vers2_redirect = pgconfig.check_redirect(version=vers2)
+
+    if vers1 == vers2:
+        return redirect('/param/change')
+    elif vers1 != vers1_redirect or vers2 != vers2_redirect:
+        redirect_url = '/param/change/{}/{}'
+        return redirect(redirect_url.format(vers1_redirect, vers2_redirect))
+
+    vers1_html = _version_select_html(name='version_1', filter_default=vers1)
+    vers2_html = _version_select_html(name='version_2', filter_default=vers2)
+
+    try:
+        config_changes = pgconfig2.config_changes(vers1, vers2)
+    except ValueError:
+        return redirect('/param/change')
+
+    config_changes_html = pgconfig2.config_changes_html(config_changes)
+    changes_stats = pgconfig2.config_changes_stats(config_changes)
+    return render_template('param_change2.html',
+                           year=get_year(),
+                           config_changes=config_changes_html,
+                           changes_stats=changes_stats,
+                           vers1=vers1,
+                           vers2=vers2,
+                           vers1_html=vers1_html,
+                           vers2_html=vers2_html)
 
 
 @app.route('/param/change')

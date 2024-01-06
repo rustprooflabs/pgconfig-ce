@@ -10,6 +10,10 @@ LOGGER = logging.getLogger(__name__)
 VERSIONS = ['15', '12']
 
 
+NEW_STRING = 'Configuration parameter added'
+REMOVED_STRING = 'Configuration parameter removed'
+
+
 def config_changes(vers1: int, vers2: int) -> pd.DataFrame:
     """Find changes between `vers1` and `vers2`.
 
@@ -108,12 +112,14 @@ def classify_changes(row: pd.Series) -> str:
     changes = []
     delim = ', '
 
+    # When old is empty, and new is not, it's a new parameters
     if is_NaN(row['default_config_line']) and not is_NaN(row['default_config_line2']):
-        changes.append(f'Configuration parameter added')
+        changes.append('Configuration parameter added')
         return delim.join(changes)
 
+    # When new is empty and old is not, it was removed
     if is_NaN(row['default_config_line2']) and not is_NaN(row['default_config_line']):
-        changes.append(f'Configuration parameter removed')
+        changes.append('Configuration parameter removed')
         return delim.join(changes)
 
     if row['boot_val'] != row['boot_val2']:
@@ -122,3 +128,73 @@ def classify_changes(row: pd.Series) -> str:
         changes.append('Changed variable type')
     return delim.join(changes)
 
+
+def config_changes_html(changes: pd.DataFrame) -> dict:
+    """Splits `changes` data into new, removed, and changed.
+
+    Parameters
+    -------------------
+    changes : pd.DataFrame
+
+    Returns
+    -------------------
+    changes_html : dict
+        Dictionary with keys:
+            * new
+            * removed
+            * changed
+
+        Each item holds the string HTML for the table of the data from input
+        DataFrame 
+    """
+    new = changes[changes.summary == NEW_STRING]
+    removed = changes[changes.summary == REMOVED_STRING]
+    changed = changes[~changes.summary.isin([NEW_STRING, REMOVED_STRING])]
+
+    new_html = _df_to_html(new)
+    removed_html = _df_to_html(removed)
+    changed_html = _df_to_html(changed)
+    return {'new': new_html, 'removed': removed_html, 'changed': changed_html}
+
+
+def config_changes_stats(changes: dict) -> dict:
+    """Provides counts of changes by type (new, removed, updated) to display.
+
+    Parameters
+    ---------------------
+    changes : dict
+
+    Returns
+    ---------------------
+    stats : dict
+    """
+    new = changes[changes.summary == NEW_STRING].count().max()
+    removed = changes[changes.summary == REMOVED_STRING].count().max()
+    total = changes.count().max()
+    updated = total - new - removed
+    stats = {'new': new,
+             'updated': updated,
+             'removed': removed}
+    return stats
+
+
+def _df_to_html(df):
+    """Converts DataFrame to HTML table with classes for formatting.
+
+    Parameters
+    ---------------
+    df : pandas.DataFrame
+
+    Returns
+    ---------------
+    str
+        HTML table for display.
+    """
+    classes = ['table', 'table-hover']
+    html_raw = '<div id="config_table">{src}</div>'
+    src = df.to_html(index=False,
+                     classes=classes,
+                     justify='center',
+                     escape=False)
+    html = html_raw.format(src=src)
+    return html
