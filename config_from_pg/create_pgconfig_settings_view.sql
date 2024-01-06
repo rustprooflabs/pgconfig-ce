@@ -1,10 +1,14 @@
 
 DROP VIEW IF EXISTS pgconfig.settings;
 CREATE VIEW pgconfig.settings AS
-SELECT name, setting, context, source, reset_val, boot_val,
-        unit, category,
-        name || ' = ' ||  CHR(39) || current_setting(name) || CHR(39)
-            AS postgresconf_line,
+SELECT name, setting, unit, context, source, category,
+        reset_val, boot_val,
+        CASE WHEN vartype IN ('string', 'enum')
+            THEN 
+                name || ' = ' ||  CHR(39) || current_setting(name) || CHR(39)
+            ELSE
+                name || ' = ' || current_setting(name)
+            END AS postgresconf_line,
         name || ' = ' || CHR(39) || 
                 -- Recalculates 8kB units to more comprehensible kB units.
                 -- above line gets to use the current_setting() func, didn't find any
@@ -36,9 +40,11 @@ SELECT name, setting, context, source, reset_val, boot_val,
         CASE WHEN reset_val = setting THEN False 
             ELSE True
             END AS session_override, 
-        pending_restart
+        pending_restart,
+        vartype, min_val, max_val, enumvals, sourcefile, sourceline
     FROM pg_catalog.pg_settings
 ;
 
-COMMENT ON COLUMN pgconfig.settings.postgresconf_line IS 'Current configuration in format suitable for postgresql.conf.  All setting values quoted in single quotes since that always works, and omitting the quotes does not.';
+COMMENT ON COLUMN pgconfig.settings.postgresconf_line IS 'Current configuration in format suitable for postgresql.conf.  All setting values quoted in single quotes since that always works, and omitting the quotes does not.  Uses pg_catalog.current_setting() which converts settings into sensible units for display.';
 COMMENT ON COLUMN pgconfig.settings.default_config_line IS 'Postgres default configuration for setting. Some are hard coded, some are determined at build time.';
+COMMENT ON COLUMN pgconfig.settings.setting IS 'Raw setting value in the units defined in the "units" column.';

@@ -1,13 +1,13 @@
 """Database helper module.
-Modified from https://gist.github.com/rustprooflabs/3b8564a8e7b7fe611436b30a95b7cd17
+Modified from https://gist.github.com/rustprooflabs/3b8564a8e7b7fe611436b30a95b7cd17,
+adapted to psycopg 3 from psycopg2.
 """
 import getpass
-import psycopg2
-import psycopg2.extras
+import psycopg
 
 
 def prepare():
-    """Ensures helper objects exist in DB.
+    """Ensures latest `pgconfig.settings` view exists in DB to generate config.
     """
     print('Preparing database objects...')
     ensure_schema_exists()
@@ -30,17 +30,41 @@ def ensure_view_exists():
     _execute_query(sql_raw, params=None, qry_type='ddl')
 
 
-def select_one(sql_raw, params):
-    """ Runs SELECT query that will return zero or 1 rows.  `params` is required."""
+def select_one(sql_raw: str, params: dict) -> dict:
+    """ Runs SELECT query that will return zero or 1 rows.
+    
+    Parameters
+    -----------------
+    sql_raw : str
+    params : dict
+        Params is required, can be `None` if query returns a single row
+        such as `SELECT version();`
+
+    Returns
+    -----------------
+    data : dict
+    """
     return _execute_query(sql_raw, params, 'sel_single')
 
 
-def select_multi(sql_raw, params=None):
-    """ Runs SELECT query that will return multiple.  `params` is optional."""
+def select_multi(sql_raw, params=None) -> list:
+    """ Runs SELECT query that will return multiple.  `params` is optional.
+
+    Parameters
+    -----------------
+    sql_raw : str
+    params : dict
+        Params is optional, defaults to `None`.
+
+    Returns
+    ------------------
+    data : list
+        List of dictionaries.
+    """
     return _execute_query(sql_raw, params, 'sel_multi')
  
 
-def get_db_string():
+def get_db_string() -> str:
     """Prompts user for details to create connection string
 
     Returns
@@ -67,8 +91,8 @@ def get_db_conn():
     db_string = DB_STRING
 
     try:
-        conn = psycopg2.connect(db_string)
-    except psycopg2.OperationalError as err:
+        conn = psycopg.connect(db_string)
+    except psycopg.OperationalError as err:
         err_msg = 'DB Connection Error - Error: {}'.format(err)
         print(err_msg)
         return False
@@ -86,14 +110,14 @@ def _execute_query(sql_raw, params, qry_type):
     """
     try:
         conn = get_db_conn()
-    except psycopg2.ProgrammingError as err:
+    except psycopg.ProgrammingError as err:
         print('Connection not configured properly.  Err: %s', err)
         return False
 
     if not conn:
         return False
 
-    cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+    cur = conn.cursor(row_factory=psycopg.rows.dict_row)
 
     try:
         cur.execute(sql_raw, params)
@@ -107,11 +131,11 @@ def _execute_query(sql_raw, params, qry_type):
         else:
             raise Exception('Invalid query type defined.')
 
-    except psycopg2.ProgrammingError as err:
-        print('Database error via psycopg2.  %s', err)
+    except psycopg.BINARYProgrammingError as err:
+        print('Database error via psycopg.  %s', err)
         results = False
-    except psycopg2.IntegrityError as err:
-        print('PostgreSQL integrity error via psycopg2.  %s', err)
+    except psycopg.IntegrityError as err:
+        print('PostgreSQL integrity error via psycopg.  %s', err)
         results = False
     finally:
         conn.close()

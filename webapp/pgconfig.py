@@ -23,7 +23,7 @@ def get_all_config():
 
     for version in VERSIONS:
         try:
-            # Ingoring dups list in second part out output
+            # Ignoring dups list in second part out output
             version_conf, _ = parse_pg_config(version=version)
         except FileNotFoundError:
             version_conf = False
@@ -266,7 +266,7 @@ def parse_pg_config(version='13', custom_config=None):
         Version number in str format.  e.g. 11 or 9_6
 
     custom_config : str
-        If value provided, does NOT load from file, insteads parses this content.
+        If value provided, does NOT load from file, instead parses this content.
         default = `None`
 
     Returns
