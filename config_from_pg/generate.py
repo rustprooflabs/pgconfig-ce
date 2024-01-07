@@ -1,21 +1,29 @@
 """Generates config based on pgconfig.settings and pickles for reuse in webapp.
+
+This code is expected to be used on Postgres 10 and newer.
 """
 import pickle
 import db
 
 
 def run():
-    """Generates config from defined database connection.
+    """Saves pickled config data from defined database connection.
     """
     db.prepare()
     pg_version_num = get_pg_version_num()
     pg_config_data = get_config_data()
     save_config_data(data=pg_config_data, pg_version_num=pg_version_num)
-    default_config = get_defaults()
-    save_config(data=default_config)
 
 
 def get_pg_version_num() -> int:
+    """Returns the Postgres version number as an integer.
+
+    Expected to be used on Postgres 10 and newer only.
+
+    Returns
+    ------------------------
+    pg_version_num : int
+    """
     sql_raw = """SELECT current_setting('server_version_num')::BIGINT / 10000
             AS pg_version_num;
     """
@@ -59,52 +67,14 @@ def save_config_data(data: list, pg_version_num: int):
     ----------------------
     data : list
         List of dictionaries to pickle.
+
+    pg_version_num : int
+        Integer of Postgres version.
     """
     filename = f'../webapp/config/pg{pg_version_num}.pkl'
     with open(filename, 'wb') as data_file:
         pickle.dump(data, data_file)
-    print(f'Saved pickled data to {filename}')
-
-
-def get_defaults():
-    """Queries Postgres for default settings.
-
-    Returns
-    --------------------
-    results : list
-    """
-    sql_raw = """
-    SELECT default_config_line
-        FROM pgconfig.settings
-        WHERE NOT frequent_override
-            AND category != 'Preset Options'
-    ;
-    """
-    results = db.select_multi(sql_raw)
-    return results
-
-def save_config(data: list, filename: str='postgresql.conf.default'):
-    """Saves configuration file from `data`.
-
-    It feels that this format will become unnecessary as other changes/improvements
-    are made using data from `pg_catalog.pg_settings`.
-
-    Parameters
-    ---------------------
-    data : list
-    filename : str
-        Defaults to postgresql.conf.default
-    """
-    # Repack w/out the dict portion
-    lines = list()
-    for row in data:
-        line = row['default_config_line']
-        lines.append(line)
-
-    print(f'Saving config data to {filename}')
-    # Write to file
-    with open(filename, 'w') as f:
-        f.writelines('%s\n' % l for l in lines)
+    print(f'Pickled config data saved to: {filename}')
 
 
 if __name__ == "__main__":

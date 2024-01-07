@@ -7,7 +7,7 @@ import pickle
 from webapp import config
 
 LOGGER = logging.getLogger(__name__)
-VERSIONS = ['15', '12']
+VERSIONS = ['11', '12', '13', '14', '15', '16']
 
 
 NEW_STRING = 'Configuration parameter added'
@@ -33,19 +33,76 @@ def config_changes(vers1: int, vers2: int) -> pd.DataFrame:
         raise ValueError('Version 1 must be lower (before) version 2.')
 
     # Have to drop enumvals in comparison to avoid errors comparing using pandas
-    data1 = load_config_data(pg_version=vers1).drop(columns='enumvals')
-    data2 = load_config_data(pg_version=vers2).drop(columns='enumvals')
+    data1 = load_config_data(pg_version=vers1)
+    data2 = load_config_data(pg_version=vers2)
 
     data2 = data2.add_suffix('2')
 
     combined = pd.concat([data1, data2], axis=1)
 
     combined['summary'] = combined.apply(classify_changes, axis=1)
-    columns = ['summary', 'vartype', 'vartype2',
-            'boot_val_display', 'boot_val_display2']
+    combined['change_display'] = combined.apply(calculate_change_display, axis=1)
+
+    # Create combined columns. Passing in 2nd version first displays latest
+    # version if there are any differences.
+    squash_column_names = ['short_desc2', 'short_desc']
+    new_column = 'short_desc'
+    combined = squash_columns(data=combined,
+                              original_columns=squash_column_names,
+                              new_column=new_column)
+
+    squash_column_names = ['frequent_override2', 'frequent_override']
+    new_column = 'frequent_override'
+    combined = squash_columns(data=combined,
+                              original_columns=squash_column_names,
+                              new_column=new_column)
+
+    squash_column_names = ['category2', 'category']
+    new_column = 'category'
+    combined = squash_columns(data=combined,
+                              original_columns=squash_column_names,
+                              new_column=new_column)
+
+    squash_column_names = ['history_url2', 'history_url']
+    new_column = 'history_url'
+    combined = squash_columns(data=combined,
+                              original_columns=squash_column_names,
+                              new_column=new_column)
+
+    # Limit the columns
+    columns = ['summary', 'frequent_override',
+               'category', 'short_desc',
+               'vartype', 'vartype2',
+               'boot_val_display', 'boot_val_display2',
+               'enumvals', 'enumvals2', 'change_display',
+               'history_url'
+    ]
     changed = combined[combined['summary'] != ''][columns]
 
     return changed
+
+def squash_columns(data: pd.DataFrame, original_columns: list, new_column: str):
+    """Coalesces the values from DataFrame columns in `original_columns` list
+    into the `new_column` name.  Drops `original_columns`, so can reuse one of
+    the column names if desired. e.g `short_desc` and `short_desc2` combined
+    into the `short_desc` column.
+
+    Note: This is useful for added and removed items, NOT changed items.
+
+    Parameters
+    ---------------------
+    data : pd.DataFrame
+    original_columns : list
+    new_column : str
+
+    Returns
+    ---------------------
+    data_new : pd.DataFrame
+    """
+    data['tmp'] = data[original_columns].bfill(axis=1).iloc[:, 0]
+    data_mid = data.drop(columns=original_columns)
+    data_new = data_mid.rename(columns={'tmp': new_column})
+    return data_new
 
 
 def load_config_data(pg_version: int) -> pd.DataFrame:
@@ -63,6 +120,10 @@ def load_config_data(pg_version: int) -> pd.DataFrame:
     df : pd.DataFrame
     """ 
     base_path = os.path.dirname(os.path.realpath(__file__))
+    # Checking user input against configured versions to avoid security concerns
+    if str(pg_version) not in VERSIONS:
+        raise ValueError(f'Invalid Postgres version.  Options are {VERSIONS}')
+
     filename = os.path.join(base_path, 'config', f'pg{pg_version}.pkl')
 
     try:
@@ -77,8 +138,14 @@ def load_config_data(pg_version: int) -> pd.DataFrame:
         df = pd.DataFrame()
         return df
 
+    # Add hyperlink to the parameter history page
+    html_part1 = '<a href="/param/'
+    html_part2 = '" target="blank"><i class="fa fa-external-link" aria-hidden="true"></i></a>'
+    df['history_url'] = html_part1 + df['name'] + html_part2
+
     df.set_index('name', inplace=True)
     return df
+
 
 def is_NaN(input: str) -> bool:
     """Checks string values for NaN, aka it isn't equal to itself.
@@ -129,6 +196,35 @@ def classify_changes(row: pd.Series) -> str:
     return delim.join(changes)
 
 
+def calculate_change_display(row: pd.Series) -> str:
+    """Used by dataFrame.apply on the combined DataFrame to create the columns
+    to display for changes.
+
+    Parameters
+    --------------------------
+    row : pd.Series
+        Row from combined DataFrame to check details.
+
+    Returns
+    -------------------------
+    changes : str
+        Changes are built as a list internally and returned as a string
+        with a comma separated list of changes.
+    """
+    changes = []
+    delim = ', '
+
+    # If either is Nan, don't calculate
+    if is_NaN(row['default_config_line']) or is_NaN(row['default_config_line2']):
+        return None
+
+    if row.boot_val != row.boot_val2:
+        changes.append(f'Default value: {row.boot_val} -> {row.boot_val2}')
+    if row['vartype'] != row['vartype2']:
+        changes.append(f'Variable type: <code>{row.vartype}</code> -> <code>{row.vartype2}</code>')
+    return delim.join(changes)
+
+
 def config_changes_html(changes: pd.DataFrame) -> dict:
     """Splits `changes` data into new, removed, and changed.
 
@@ -147,13 +243,37 @@ def config_changes_html(changes: pd.DataFrame) -> dict:
         Each item holds the string HTML for the table of the data from input
         DataFrame 
     """
-    new = changes[changes.summary == NEW_STRING]
-    removed = changes[changes.summary == REMOVED_STRING]
-    changed = changes[~changes.summary.isin([NEW_STRING, REMOVED_STRING])]
+    # New Section
+    columns_new = ['category', 'short_desc', 'boot_val_display2',
+                   'vartype2', 'enumvals2', 'history_url']
+    rename_columns_new = {'vartype2': 'Var Type',
+                          'boot_val_display2': 'Default Value',
+                          'enumvals2': 'Enum Values'
+                          }
+    new = changes[changes.summary == NEW_STRING][columns_new].rename(columns=rename_columns_new)
 
     new_html = _df_to_html(new)
+
+    # Removed Section
+    columns_removed = ['category', 'short_desc', 'boot_val_display',
+                       'vartype', 'enumvals', 'history_url']
+    rename_columns_removed = {'vartype': 'Var Type',
+                          'boot_val_display': 'Default Value',
+                          'enumvals': 'Enum Values'
+                          }
+    removed = changes[changes.summary == REMOVED_STRING][columns_removed].rename(columns=rename_columns_removed)
     removed_html = _df_to_html(removed)
+
+    # Changed section
+    columns_changed = ['category', 'short_desc', 'change_display',
+                       'history_url']
+    rename_columns_changed = {'vartype': 'Var Type',
+                          'change_display': 'Changed:',
+                          'enumvals': 'Enum Values'
+                          }
+    changed = changes[~changes.summary.isin([NEW_STRING, REMOVED_STRING])][columns_changed].rename(columns=rename_columns_changed)
     changed_html = _df_to_html(changed)
+
     return {'new': new_html, 'removed': removed_html, 'changed': changed_html}
 
 
@@ -192,7 +312,9 @@ def _df_to_html(df):
     """
     classes = ['table', 'table-hover']
     html_raw = '<div id="config_table">{src}</div>'
-    src = df.to_html(index=False,
+    default_renames = {'category': 'Category', 'short_desc': 'Description'}
+    df.rename(columns=default_renames, inplace=True)
+    src = df.to_html(index=True,
                      classes=classes,
                      justify='center',
                      escape=False)

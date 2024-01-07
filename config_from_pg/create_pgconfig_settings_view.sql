@@ -41,7 +41,7 @@ SELECT name, setting, unit, context, source, category,
             ELSE True
             END AS session_override, 
         pending_restart,
-        vartype, min_val, max_val, enumvals, sourcefile, sourceline
+        vartype, min_val, max_val, enumvals
     FROM pg_catalog.pg_settings
 ;
 

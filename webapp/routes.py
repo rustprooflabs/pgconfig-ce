@@ -46,7 +46,7 @@ def view_app_params(pg_param):
                            select_html=select_html)
 
 
-@app.route('/param/change2/<vers1>/<vers2>')
+@app.route('/param/change/<vers1>/<vers2>')
 def view_app_param_changes_v2(vers1, vers2):
     vers1_redirect = pgconfig.check_redirect(version=vers1)
     vers2_redirect = pgconfig.check_redirect(version=vers2)
@@ -82,7 +82,7 @@ def redirect_param_change():
     return redirect('/param/change/{}/{}'.format('15', '16'))
 
 
-@app.route('/param/change/<vers1>/<vers2>')
+@app.route('/param/change_old/<vers1>/<vers2>')
 def view_app_param_changes(vers1, vers2):
     vers1_redirect = pgconfig.check_redirect(version=vers1)
     vers2_redirect = pgconfig.check_redirect(version=vers2)
@@ -172,7 +172,7 @@ def _config_select_html(filter_default='max_parallel_workers_per_gather'):
 
 def _version_select_html(name, filter_default):
     html = '<select id="{name}" name="{name}"> '.format(name=name)
-    options = pgconfig.VERSIONS
+    options = pgconfig2.VERSIONS
     for option in options:
         if option == filter_default:
             tmp_html = '<option value="{}" selected="selected">{}</option>'
