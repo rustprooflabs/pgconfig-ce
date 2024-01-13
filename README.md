@@ -33,15 +33,43 @@ python run_server.py
 
 ## Add new config files
 
-To add a new configuration version, build target Postgres version from source.  [Example in post](https://blog.rustprooflabs.com/2019/07/postgresql-postgis-install-from-source-raspberry-pi).  Take the contents of the `postgresql.conf` file, 
-clean out all comments, uncomment all default GUCs.  Place in `webapp/config`
-and update `VERSIONS` list ini `pgconfig.py`.
-
-Example of getting configuration after building from source.
+To add a new configuration version you need a Postgres database instance running
+that you can connect to.  Activate the Python venv and start `ipython`.
 
 ```bash
-cat /usr/local/pgsql/data/postgresql.conf
+source ~/venv/pgconfig/bin/activate
+cd ~/git/pgconfig-ce/config_from_pg
+ipython
 ```
+
+Import
+```python
+import generate
+```
+
+You'll be prompted for the database connection parameters.  Ideally you are using
+a `~/.pgpass` file, but the option is there to enter your password. 
+
+```
+Database host [127.0.0.1]: 
+Database port [5432]: 
+Database name: postgres 
+Enter PgSQL username: your_username
+Enter password (empty for pgpass): 
+```
+
+Run the generation.  Will create a file in the appropriate spot for the webapp.
+When adding a new version you need to add it to `webapp/pgconfig.py` as well
+as generating this file.
+
+```python
+generate.run()
+```
+
+Preparing database objects...
+Database objects ready.
+Pickled config data saved to: ../webapp/config/pg15.pkl
+
 
 
 ## Unit tests
