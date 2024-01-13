@@ -39,7 +39,7 @@ def view_app_param_not_set():
 def view_app_params(pg_param):
     select_html = get_param_select_html(pg_param)
     param_details = pgconfig.get_pg_param_over_versions(pg_param)
-    return render_template('param2.html',
+    return render_template('param.html',
                            year=get_year(),
                            param_details=param_details,
                            select_html=select_html)
@@ -67,7 +67,7 @@ def view_app_param_changes_v2(vers1, vers2):
 
     config_changes_html = pgconfig.config_changes_html(config_changes)
     changes_stats = pgconfig.config_changes_stats(config_changes)
-    return render_template('param_change2.html',
+    return render_template('param_change.html',
                            year=get_year(),
                            config_changes=config_changes_html,
                            changes_stats=changes_stats,
