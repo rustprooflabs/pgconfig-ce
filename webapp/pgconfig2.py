@@ -4,14 +4,45 @@ import logging
 import pandas as pd
 import pickle
 
-from webapp import config
 
 LOGGER = logging.getLogger(__name__)
 VERSIONS = ['10', '11', '12', '13', '14', '15', '16']
+"""list : Versions with data included. Add new versions to this list.
+When including pre-production versions include a non-production designation,
+e.g. 16beta1
+"""
 
+VERSION_REDIRECTS = [{'version': '12beta4', 'redirect': '12'},
+                     {'version': '16beta1', 'redirect': '16'}
+                     ]
+"""list : List of dictionaries. Dict keys are 'version' and 'redirect'."""
 
 NEW_STRING = 'Configuration parameter added'
 REMOVED_STRING = 'Configuration parameter removed'
+
+
+def check_redirect(version):
+    """Checks version for defined redirects.
+
+    e.g. 12beta4 redirects to 12 once the production-ready version
+    is released.
+
+    Parameters
+    ---------------
+    version : str
+        Version to check for redirects for.
+
+    Returns
+    ---------------
+    version : str
+        Redirected if necessary, original version if not.
+    """
+    for redirect in VERSION_REDIRECTS:
+        if version == redirect['version']:
+            LOGGER.info('Redirecting version %s to %s', version,
+                                                        redirect['redirect'])
+            return redirect['redirect']
+    return version
 
 
 def config_changes(vers1: int, vers2: int) -> pd.DataFrame:
