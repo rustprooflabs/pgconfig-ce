@@ -1,3 +1,4 @@
+"""Routes for pgconfig-ce webapp."""
 from datetime import datetime as dt
 import logging
 from flask import render_template, redirect
@@ -31,7 +32,7 @@ def view_root_url():
 
 @app.route('/param')
 def view_app_param_not_set():
-        return redirect('/param/{}'.format('max_parallel_workers_per_gather'))
+    return redirect('/param/{}'.format('max_parallel_workers_per_gather'))
 
 
 

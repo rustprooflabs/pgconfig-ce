@@ -102,11 +102,12 @@ webapp/routes.py        83     58    30%   20, 24, 30, 35, 40-43, 51, 56-75, 87,
 TOTAL                  279     95    66%
 ```
 
+## Pylint
 
 Run pylint.
 
 ```
-pylint --rcfile=./.pylintrc -f parseable ./webapp/*.py
+pylint --rcfile=./.pylintrc -f parseable ./webapp/*.py ./config_from_pg/*.py
 ```
 
 ## History

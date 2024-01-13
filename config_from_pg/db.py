@@ -62,7 +62,7 @@ def select_multi(sql_raw, params=None) -> list:
         List of dictionaries.
     """
     return _execute_query(sql_raw, params, 'sel_multi')
- 
+
 
 def get_db_string() -> str:
     """Prompts user for details to create connection string
@@ -88,14 +88,16 @@ def get_db_string() -> str:
 DB_STRING = get_db_string()
 
 def get_db_conn():
+    """Uses DB_STRING to establish psycopg connection."""
     db_string = DB_STRING
 
     try:
         conn = psycopg.connect(db_string)
     except psycopg.OperationalError as err:
-        err_msg = 'DB Connection Error - Error: {}'.format(err)
+        err_msg = f'DB Connection Error - Error: {err}'
         print(err_msg)
         return False
+
     return conn
 
 
@@ -111,7 +113,7 @@ def _execute_query(sql_raw, params, qry_type):
     try:
         conn = get_db_conn()
     except psycopg.ProgrammingError as err:
-        print('Connection not configured properly.  Err: %s', err)
+        print(f'Connection not configured properly.  Err: {err}')
         return False
 
     if not conn:

@@ -150,7 +150,7 @@ def load_config_data(pg_version: int) -> pd.DataFrame:
     Returns
     ----------------------
     df : pd.DataFrame
-    """ 
+    """
     base_path = os.path.dirname(os.path.realpath(__file__))
     # Checking user input against configured versions to avoid security concerns
     if str(pg_version) not in VERSIONS:
@@ -459,4 +459,3 @@ def history_df_to_html(history: dict, pg_param: str) -> str:
     history_df.set_index('name', inplace=True)
     history_html = _df_to_html(history_df)
     return history_html
-
