@@ -38,9 +38,15 @@
 
     <div class="row text-center p-2">
     	<p class="col-md-8">
-    		Default configurations have been loaded for all major Postgres
-    		versions starting with 9.2.  Configurations for new versions will be added as they are released.  Older versions may be added as time permits.
-    	</p>
+            Configuration data is available for Postgres 10 and newer.
+            Configurations for new versions will be added as they are released.
+        </p>
+        <p>
+            NOTE: This tool previously included Postgres versions 9.2 through 9.6.
+            Those versions were not included during the rewrite from using
+            `postgresql.conf` directly to using the more robust comparison
+            from `pg_catalog.pg_settings` data.
+        </p>
     </div>
 
 </div>

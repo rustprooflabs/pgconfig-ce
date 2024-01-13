@@ -7,7 +7,7 @@ import pickle
 from webapp import config
 
 LOGGER = logging.getLogger(__name__)
-VERSIONS = ['11', '12', '13', '14', '15', '16']
+VERSIONS = ['10', '11', '12', '13', '14', '15', '16']
 
 
 NEW_STRING = 'Configuration parameter added'
@@ -80,6 +80,7 @@ def config_changes(vers1: int, vers2: int) -> pd.DataFrame:
     changed = combined[combined['summary'] != ''][columns]
 
     return changed
+
 
 def squash_columns(data: pd.DataFrame, original_columns: list, new_column: str):
     """Coalesces the values from DataFrame columns in `original_columns` list
@@ -320,3 +321,111 @@ def _df_to_html(df):
                      escape=False)
     html = html_raw.format(src=src)
     return html
+
+
+def get_all_postgres_parameters() -> set:
+    """Returns sorted set of Postgres parameters from all versions.
+
+    Returns
+    ----------------------
+    all_parameters : set
+    """
+    all_version_data = {}
+    all_parameters = set()
+
+    for version in VERSIONS:
+        all_version_data[version] = load_config_data(version)
+        version_parameters = all_version_data[version].index.values.tolist()
+        all_parameters.update(version_parameters)
+
+    return sorted(all_parameters)
+
+
+def get_pg_param_over_versions(pg_param: str) -> dict:
+    """Return details about pg_param over Postgres major versions.
+
+    Parameters
+    -------------------------
+    pg_param : str
+        Name of the Postgres parameter
+
+    Returns
+    -------------------------
+    param_details : dict
+    """
+    param_details = {'name': pg_param}
+    max_version = max(VERSIONS)
+    value_history = {}
+    vartype_history = {}
+
+    for version in VERSIONS:
+        config_data = load_config_data(version)
+        filtered_data = config_data[config_data.index == pg_param]
+
+        try:
+            boot_val = filtered_data['boot_val_display'].iloc[0]
+        except IndexError:
+            boot_val = ''
+
+        try:
+            vartype = filtered_data['vartype'].iloc[0]
+        except IndexError:
+            vartype = ''
+
+        try:
+            category = filtered_data['category'].iloc[0]
+        except IndexError:
+            category = ''
+
+        try:
+            short_desc = filtered_data['short_desc'].iloc[0]
+        except IndexError:
+            short_desc = ''
+
+        try:
+            frequent_override = filtered_data['frequent_override'].iloc[0]
+        except IndexError:
+            frequent_override = ''
+
+        if version == max_version:
+            details = {'vartype': vartype,
+                       'boot_val': boot_val,
+                       'category': category,
+                       'short_desc': short_desc,
+                       'frequent_override': frequent_override
+                    }
+            param_details['details'] = details
+
+        value_history[version] = boot_val
+        vartype_history[version] = vartype
+
+    value_history_html = history_df_to_html(history=value_history,
+                                            pg_param=pg_param)
+    vartype_history_html = history_df_to_html(history=vartype_history,
+                                            pg_param=pg_param)
+
+    param_details['value_history'] = value_history_html
+    param_details['vartype_history'] = vartype_history_html
+
+    return param_details
+
+
+def history_df_to_html(history: dict, pg_param: str) -> str:
+    """Converts a dictionary of details across versions to HTML for display on
+    frontend.
+
+    Parameters
+    ------------------------
+    history : dict
+    pg_param : str
+
+    Returns
+    ------------------------
+    history_html : str
+    """
+    history_df = pd.DataFrame([history])
+    history_df['name'] = pg_param
+    history_df.set_index('name', inplace=True)
+    history_html = _df_to_html(history_df)
+    return history_html
+

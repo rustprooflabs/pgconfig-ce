@@ -1,0 +1,68 @@
+{% extends 'layout.html' %}
+{% block main_content %}
+
+<div class="container-fluid">
+    <h1 class="row text-center p-4">
+      Postgres Parameter across Versions
+    </h1>
+
+    <p class="row text-center">
+      Select a parameter to view the defaults across versions of PostgreSQL.
+    </p>
+
+    <div class="row text-center p-2">
+      {{ select_html | safe }}
+    </div>
+
+    <div class="row text-center p-1">
+        <div class="col-md-10">
+            
+          <h2 class="p-3">
+            Latest version details
+          </h2>
+            <div>
+                <strong>Category</strong>
+                {{ param_details['details']['category'] }}
+            </div>
+
+            <div>
+                
+                <strong>Variable type</strong>:
+                {{ param_details['details']['vartype'] }}
+                <br />
+                <strong>Short Description</strong>:
+                {{ param_details['details']['short_desc'] }}
+                
+            </div>
+
+            
+            <h2 class="p-3">
+              Value History
+            </h2>
+            <div id="config_table_parent">
+                {{ param_details['value_history'] | safe }}
+            </div>
+            
+            <h2 class="p-3">
+              Vartype History
+            </h2>
+            <div id="config_table_parent">
+              {{ param_details['vartype_history'] | safe }}
+          </div>
+        </div>
+    </div>
+
+
+</div>
+
+<script type=text/javascript>
+  $(function() {
+    $('select').on('change', function() {
+      var pg_param = $('select#selection_param option:selected').attr('value');
+      window.location.href = '/param/' + pg_param;
+    });
+  });
+</script>
+
+
+{% endblock main_content %}

@@ -35,8 +35,8 @@ def view_app_param_not_set():
         return redirect('/param/{}'.format('max_parallel_workers_per_gather'))
 
 
-@app.route('/param/<pg_param>')
-def view_app_params(pg_param):
+@app.route('/param_old/<pg_param>')
+def view_app_params_old(pg_param):
     select_html = _config_select_html(pg_param)
     config_full = pgconfig.config_to_html(CONFIG_FULL,
                                           filter_value=pg_param)
@@ -44,6 +44,16 @@ def view_app_params(pg_param):
                            year=get_year(),
                            config_full=config_full,
                            select_html=select_html)
+
+@app.route('/param/<pg_param>')
+def view_app_params(pg_param):
+    select_html = get_param_select_html(pg_param)
+    param_details = pgconfig2.get_pg_param_over_versions(pg_param)
+    return render_template('param2.html',
+                           year=get_year(),
+                           param_details=param_details,
+                           select_html=select_html)
+
 
 
 @app.route('/param/change/<vers1>/<vers2>')
@@ -80,37 +90,6 @@ def view_app_param_changes_v2(vers1, vers2):
 @app.route('/param/change')
 def redirect_param_change():
     return redirect('/param/change/{}/{}'.format('15', '16'))
-
-
-@app.route('/param/change_old/<vers1>/<vers2>')
-def view_app_param_changes(vers1, vers2):
-    vers1_redirect = pgconfig.check_redirect(version=vers1)
-    vers2_redirect = pgconfig.check_redirect(version=vers2)
-
-    if vers1 == vers2:
-        return redirect('/param/change')
-    elif vers1 != vers1_redirect or vers2 != vers2_redirect:
-        redirect_url = '/param/change/{}/{}'
-        return redirect(redirect_url.format(vers1_redirect, vers2_redirect))
-
-    vers1_html = _version_select_html(name='version_1', filter_default=vers1)
-    vers2_html = _version_select_html(name='version_2', filter_default=vers2)
-    try:
-        config_changes = pgconfig.config_changes(CONFIG_FULL,
-                                                 vers1,
-                                                 vers2)
-    except KeyError:
-        return redirect('/param/change')
-    config_changes_html = pgconfig.config_changes_html(config_changes)
-    changes_stats = pgconfig.config_changes_stats(config_changes, vers1, vers2)
-    return render_template('param_change.html',
-                           year=get_year(),
-                           config_changes=config_changes_html,
-                           changes_stats=changes_stats,
-                           vers1=vers1,
-                           vers2=vers2,
-                           vers1_html=vers1_html,
-                           vers2_html=vers2_html)
 
 
 @app.route('/custom')
@@ -154,7 +133,39 @@ def view_custom_config_comparison(vers1):
                            form=form)
 
 
+
+def get_param_select_html(filter_default: str='max_parallel_workers_per_gather') -> str:
+    """Returns HTML of parameter options to select from on the "single parameter"
+    page.
+
+    Parameters
+    ------------------------------------
+    filter_default : str
+        Default value: max_parallel_workers_per_gather
+
+    Returns
+    ------------------------------------
+    html : str
+    """
+    html = '<select id="selection_param" name="selection_param"> '
+    options = pgconfig2.get_all_postgres_parameters()
+    options.sort()
+    for option in options:
+        if option == filter_default:
+            tmp_html = '<option value="{}" selected="selected">{}</option>'
+        else:
+            tmp_html = '<option value="{}">{}</option>'
+
+        html += tmp_html.format(option, option)
+
+    # Complete the HTML object
+    html += '</select>'
+    return html
+
+
 def _config_select_html(filter_default='max_parallel_workers_per_gather'):
+    """DEPRECATED ORIGINAL VERSION
+    """
     html = '<select id="selection_param" name="selection_param"> '
     options = CONFIG_FULL['parameter'].unique()
     options.sort()
