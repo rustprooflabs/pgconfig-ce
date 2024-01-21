@@ -2,6 +2,8 @@
 
 Compares parameters defined and their default values between PostgreSQL major versions.  [Hosted by RustProof Labs](https://pgconfig.rustprooflabs.com/).
 
+[API reference](https://rustprooflabs.github.io/pgconfig-ce/index.html)
+available.
 
 ## Deployment Instructions
 
