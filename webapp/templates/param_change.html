@@ -16,13 +16,15 @@
       Upgrade from&nbsp;{{ vers1_html | safe }}&nbsp;to&nbsp;{{ vers2_html | safe }}
     </h2>
 
+
     <div class="row text-center">
-      <h2 class="col-md-3 border border-2 m-1 p-3 alert alert-success">
-        New: {{ changes_stats['new'] }}
-      </h2>
 
       <h2 class="col-md-3 border border-2 m-1 p-3 alert alert-warning">
         Updated: {{ changes_stats['updated'] }}
+      </h2> 
+
+      <h2 class="col-md-3 border border-2 m-1 p-3 alert alert-success">
+        New: {{ changes_stats['new'] }}
       </h2>
 
       <h2 class="col-md-3 border border-2 m-1 p-3 alert alert-danger">
@@ -31,13 +33,39 @@
 
     </div>
 
+
     <div class="row text-center p-1">
+
+        <h2 class="col-md-10 border border-2 m-1 p-3 alert alert-warning">
+          Updated Parameters
+      </h2>
+      <div class="col-md-10">
+
+          <div id="config_table_parent">
+            {{ config_changes['changed'] | safe }}
+          </div>
+      </div>
+
+      
+        <h2 class="col-md-10 border border-2 m-1 p-3 alert alert-success">
+            New Parameters
+        </h2>
         <div class="col-md-10">
 
             <div id="config_table_parent">
-              {{ config_changes | safe }}
-            </p>
-    
+              {{ config_changes['new'] | safe }}
+            </div>
+        </div>
+
+        <h2 class="col-md-10 border border-2 m-1 p-3 alert alert-danger">
+            Removed Parameters
+        </h2>
+        <div class="col-md-10">
+
+            <div id="config_table_parent">
+              {{ config_changes['removed'] | safe }}
+            </div>
+        </div>
     </div>
 
 

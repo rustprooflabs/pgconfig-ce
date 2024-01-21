@@ -1,6 +1,7 @@
-webapp/__pycache__/
 pytest.xml
-tests/__pycache__/
+**/__pycache__/
 docs/_build/
 .coverage
 *.log
+**/.ipynb_checkpoints
+*.ipynb

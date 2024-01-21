@@ -18,10 +18,10 @@ sys.path.insert(0, os.path.abspath('../'))
 # -- Project information -----------------------------------------------------
 
 project = 'pgConfig'
-copyright = '2018 - 2020, Ryan Lambert, RustProof Labs'
+copyright = '2018 - 2024, Ryan Lambert, RustProof Labs'
 author = 'Ryan Lambert, RustProof Labs'
 
-version = '0.0.5'
+version = '0.1.0'
 
 
 # -- General configuration ---------------------------------------------------

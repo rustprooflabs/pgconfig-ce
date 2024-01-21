@@ -3,60 +3,25 @@
 
 <div class="container-fluid">
     <h1 class="row text-center p-4">
-      Compare your Configuration: {{ vers1 }}
+      compare your Configuration
     </h1>
+    <div class="row p-3">
+      <p class="col-md-8">
+      The compare your Configuration feature has been removed.
+      To compare your Postgres configuration against defaults for your version
+      explore the data returned by the following query.  
+      </p>
 
-    <p class="row text-center">
-      Select the version of Postgres that matches your configuration.  Then,
-      paste your configuration below to compare.
-    </p>
+    <pre class="col-md-8">
+    SELECT *
+        FROM pg_catalog.pg_settings
+        WHERE boot_val != setting
+    ;
+    </pre>
 
-    {% include '_custom_config_about.html' %}
-
-    <h2 class="row text-center">
-      Postgres version:&nbsp;{{ vers1_html | safe }}
-    </h2>
-
-    <div class="row text-center p-1">
-      <form action="" method="post" name="custom_config">
-            {{ form.hidden_tag() }}
-
-            <div class="row justify-content-center p-3">
-                <div class="help-block">
-                    {{ form.config_raw.label }}
-                </div>
-
-                {% if form.config_raw.errors %}
-                    <div class="alert alert-danger">
-                        {% for error in form.config_raw.errors %}
-                            {{ error }}
-                        {% endfor %}
-                    </div>
-                {% endif %}
-
-                {{ form.config_raw(class_="form-control") }}
-            </div>
-
-              <div class="modal-footer">
-                <button type="submit" class="btn btn-success">
-                    Submit
-                </button>
-              </div>
-             
-        </form>
-    </div>
-
-
+</div>
+    
 
 </div>
 
-
-<script type=text/javascript>
-  $(function() {
-    $('select').on('change', function() {
-      var vers1 = $('select#version_1 option:selected').attr('value');
-      window.location.href = '/custom/' + vers1;
-    });
-  });
-</script>
 {% endblock main_content %}
