@@ -2,7 +2,7 @@ name: Deploy Sphinx documentation to Pages
 
 on:
   push:
-    branches: [main]
+    branches: [main, pages-sphinx]
 
 jobs:
   pages:
@@ -16,3 +16,5 @@ jobs:
     steps:
     - id: deployment
       uses: sphinx-notes/pages@v3
+      with:
+        requirements_path: ./requirements.txt
