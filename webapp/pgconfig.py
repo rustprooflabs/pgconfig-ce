@@ -6,7 +6,7 @@ import pickle
 
 
 LOGGER = logging.getLogger(__name__)
-VERSIONS = ['10', '11', '12', '13', '14', '15', '16']
+VERSIONS = ['10', '11', '12', '13', '14', '15', '16', '17']
 """list : Versions with data included. Add new versions to this list.
 When including pre-production versions include a non-production designation,
 e.g. 16beta1
