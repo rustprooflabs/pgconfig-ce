@@ -8,6 +8,10 @@ from webapp import app, pgconfig
 LOGGER = logging.getLogger(__name__)
 
 
+VERSION_PRIOR = '16'
+VERSION_CURRENT = '17'
+
+
 def get_year():
     """ Gets the current year.  Used for providing dynamic
     copyright year in the footer.
@@ -80,7 +84,7 @@ def view_app_param_changes_v2(vers1, vers2):
 
 @app.route('/param/change')
 def redirect_param_change():
-    return redirect('/param/change/{}/{}'.format('15', '16'))
+    return redirect('/param/change/{}/{}'.format(VERSION_PRIOR, VERSION_CURRENT))
 
 
 @app.route('/custom')
@@ -89,7 +93,7 @@ def redirect_custom_with_defaults():
     don't just 404 on them.  Gives hint at query to run to get the data directly
     in their database.
     """
-    return redirect('/custom/{}'.format('16'))
+    return redirect('/custom/{}'.format(VERSION_CURRENT))
 
 
 @app.route('/custom/<vers1>', methods=['GET', 'POST'])
