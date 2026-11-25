@@ -13,7 +13,7 @@ available.
 
 ```bash
 cd ~/venv
-python3.8 -m venv pgconfig
+python3.14 -m venv pgconfig
 source ~/venv/pgconfig/bin/activate
 ```
 
@@ -36,7 +36,7 @@ python run_server.py
 ## Add new config files
 
 To add a new configuration version you need a Postgres database instance running
-that you can connect to.  Activate the Python venv and start `ipython`.
+that you can connect to.  Activate the Python `venv` and start `ipython`.
 
 ```bash
 source ~/venv/pgconfig/bin/activate
