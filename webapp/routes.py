@@ -12,21 +12,20 @@ VERSION_PRIOR = '18'
 VERSION_CURRENT = '19'
 
 
-def get_year():
+def get_year() -> int:
     """ Gets the current year.  Used for providing dynamic
     copyright year in the footer.
-
-    Returns
-    ----------------
-    int
-        Current year
     """
     return dt.now().year
 
+
 @app.route('/about')
 def view_about():
-    return render_template('about.html',
-                           year=get_year())
+    """Render the about page."""
+    return render_template(
+        'about.html'
+        , year=get_year()
+    )
 
 
 @app.route('/')
@@ -36,12 +35,13 @@ def view_root_url():
 
 @app.route('/param')
 def view_app_param_not_set():
-    return redirect('/param/{}'.format('max_parallel_workers_per_gather'))
-
+    """Default page for single parameter history when parameter is not defined.
+    """
+    return redirect('/param/max_parallel_workers_per_gather')
 
 
 @app.route('/param/<pg_param>')
-def view_app_params(pg_param):
+def view_app_params(pg_param: str):
     select_html = get_param_select_html(pg_param)
     param_details = pgconfig.get_pg_param_over_versions(pg_param)
     return render_template('param.html',
@@ -50,9 +50,9 @@ def view_app_params(pg_param):
                            select_html=select_html)
 
 
-
 @app.route('/param/change/<vers1>/<vers2>')
-def view_app_param_changes_v2(vers1, vers2):
+def view_app_param_changes_v2(vers1: str, vers2: str):
+    """Displays the changes between configuration files between two versions."""
     vers1_redirect = pgconfig.check_redirect(version=vers1)
     vers2_redirect = pgconfig.check_redirect(version=vers2)
 
@@ -72,19 +72,21 @@ def view_app_param_changes_v2(vers1, vers2):
 
     config_changes_html = pgconfig.config_changes_html(config_changes)
     changes_stats = pgconfig.config_changes_stats(config_changes)
-    return render_template('param_change.html',
-                           year=get_year(),
-                           config_changes=config_changes_html,
-                           changes_stats=changes_stats,
-                           vers1=vers1,
-                           vers2=vers2,
-                           vers1_html=vers1_html,
-                           vers2_html=vers2_html)
+    return render_template(
+        'param_change.html'
+        , year=get_year()
+        , config_changes=config_changes_html
+        , changes_stats=changes_stats
+        , vers1=vers1
+        , vers2=vers2
+        , vers1_html=vers1_html
+        , vers2_html=vers2_html
+    )
 
 
 @app.route('/param/change')
 def redirect_param_change():
-    return redirect('/param/change/{}/{}'.format(VERSION_PRIOR, VERSION_CURRENT))
+    return redirect(f'/param/change/{VERSION_PRIOR}/{VERSION_CURRENT}')
 
 
 @app.route('/custom')
@@ -93,11 +95,11 @@ def redirect_custom_with_defaults():
     don't just 404 on them.  Gives hint at query to run to get the data directly
     in their database.
     """
-    return redirect('/custom/{}'.format(VERSION_CURRENT))
+    return redirect(f'/custom/{VERSION_CURRENT}')
 
 
 @app.route('/custom/<vers1>', methods=['GET', 'POST'])
-def view_custom_config_comparison(vers1):
+def view_custom_config_comparison(vers1: str):
     """Route supporting removed feature. If users have this route bookmarked,
     don't just 404 on them.  Gives hint at query to run to get the data directly
     in their database.
@@ -109,19 +111,11 @@ def view_custom_config_comparison(vers1):
                            form=None)
 
 
-
-def get_param_select_html(filter_default: str='max_parallel_workers_per_gather') -> str:
+def get_param_select_html(
+        filter_default: str='max_parallel_workers_per_gather'
+    ) -> str:
     """Returns HTML of parameter options to select from on the "single parameter"
     page.
-
-    Parameters
-    ------------------------------------
-    filter_default : str
-        Default value: max_parallel_workers_per_gather
-
-    Returns
-    ------------------------------------
-    html : str
     """
     html = '<select id="selection_param" name="selection_param"> '
     options = pgconfig.get_all_postgres_parameters()
@@ -139,8 +133,8 @@ def get_param_select_html(filter_default: str='max_parallel_workers_per_gather')
     return html
 
 
-def _version_select_html(name, filter_default):
-    html = '<select id="{name}" name="{name}"> '.format(name=name)
+def _version_select_html(name: str, filter_default: str) -> str:
+    html = f'<select id="{name}" name="{name}"> '
     options = pgconfig.VERSIONS
     for option in options:
         if option == filter_default:

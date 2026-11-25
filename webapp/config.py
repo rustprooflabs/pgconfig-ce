@@ -1,20 +1,22 @@
 """Config module for PgConfig webapp."""
-import os
 import logging
+import os
+from pathlib import Path
 
-CURR_PATH = os.path.abspath(os.path.dirname(__file__))
-PROJECT_BASE_PATH = os.path.abspath(os.path.join(CURR_PATH, os.pardir))
 
-APP_NAME = 'PG Configuration Tracking'
+CURR_PATH = Path(os.path.abspath(os.path.dirname(__file__)))
+PROJECT_BASE_PATH = Path(os.path.abspath(os.path.join(CURR_PATH, os.pardir)))
+
+APP_NAME = 'Postgres Configuration Tracking'
 
 LOG_FORMAT = '%(levelname)s - %(asctime)s - %(name)s - %(message)s'
 
 LOGGER = logging.getLogger(__name__)
 
 try:
-    LOG_PATH = os.environ['LOG_PATH']
+    LOG_PATH = Path(os.environ['LOG_PATH'])
 except KeyError:
-    LOG_PATH = PROJECT_BASE_PATH + '/pgconfig_app.log'
+    LOG_PATH = PROJECT_BASE_PATH / 'pgconfig_app.log'
 
 try:
     APP_DEBUG = os.environ['APP_DEBUG']

@@ -15,13 +15,15 @@ e.g. 16beta1
 VERSION_REDIRECTS = [{'version': '12beta4', 'redirect': '12'},
                      {'version': '16beta1', 'redirect': '16'}
                      ]
-"""list : List of dictionaries. Dict keys are 'version' and 'redirect'."""
+"""list : List of dictionaries. Dict keys are 'version' and 'redirect'.
+Only needed when non-production versions were published to avoid broken links.
+"""
 
 NEW_STRING = 'Configuration parameter added'
 REMOVED_STRING = 'Configuration parameter removed'
 
 
-def check_redirect(version):
+def check_redirect(version: str) -> str:
     """Checks version for defined redirects.
 
     e.g. 12beta4 redirects to 12 once the production-ready version
@@ -45,20 +47,8 @@ def check_redirect(version):
     return version
 
 
-def config_changes(vers1: int, vers2: int) -> pd.DataFrame:
+def config_changes(vers1: str, vers2: str) -> pd.DataFrame:
     """Find changes between `vers1` and `vers2`.
-
-    Parameters
-    ----------------
-    vers1 : int
-        Version number, e.g. 11 or 16
-
-    vers2 : int
-        Version number, e.g. 11 or 16
-
-    Returns
-    -----------------
-    changed : pd.DataFrame
     """
     if vers2 <= vers1:
         raise ValueError('Version 1 must be lower (before) version 2.')
@@ -113,23 +103,17 @@ def config_changes(vers1: int, vers2: int) -> pd.DataFrame:
     return changed
 
 
-def squash_columns(data: pd.DataFrame, original_columns: list, new_column: str):
+def squash_columns(
+        data: pd.DataFrame
+        , original_columns: list
+        , new_column: str
+    ) -> pd.DataFrame:
     """Coalesces the values from DataFrame columns in `original_columns` list
     into the `new_column` name.  Drops `original_columns`, so can reuse one of
     the column names if desired. e.g `short_desc` and `short_desc2` combined
     into the `short_desc` column.
 
     Note: This is useful for added and removed items, NOT changed items.
-
-    Parameters
-    ---------------------
-    data : pd.DataFrame
-    original_columns : list
-    new_column : str
-
-    Returns
-    ---------------------
-    data_new : pd.DataFrame
     """
     data['tmp'] = data[original_columns].bfill(axis=1).iloc[:, 0]
     data_mid = data.drop(columns=original_columns)
@@ -137,19 +121,11 @@ def squash_columns(data: pd.DataFrame, original_columns: list, new_column: str):
     return data_new
 
 
-def load_config_data(pg_version: int) -> pd.DataFrame:
+def load_config_data(pg_version: str) -> pd.DataFrame:
     """Loads the pickled config data for `pg_version` into DataFrame with the
     config name as the index.
 
     Returns empty DataFrame on file read error.
-
-    Parameters
-    ----------------------
-    pg_version : int
-
-    Returns
-    ----------------------
-    df : pd.DataFrame
     """
     base_path = os.path.dirname(os.path.realpath(__file__))
     # Checking user input against configured versions to avoid security concerns
@@ -181,14 +157,6 @@ def load_config_data(pg_version: int) -> pd.DataFrame:
 
 def is_NaN(input: str) -> bool:
     """Checks string values for NaN, aka it isn't equal to itself.
-
-    Parameters
-    ------------------------
-    input : str
-
-    Returns
-    ------------------------
-    is_nan : bool
     """
     return input != input
 
@@ -260,10 +228,6 @@ def calculate_change_display(row: pd.Series) -> str:
 def config_changes_html(changes: pd.DataFrame) -> dict:
     """Splits `changes` data into new, removed, and changed.
 
-    Parameters
-    -------------------
-    changes : pd.DataFrame
-
     Returns
     -------------------
     changes_html : dict
@@ -309,16 +273,8 @@ def config_changes_html(changes: pd.DataFrame) -> dict:
     return {'new': new_html, 'removed': removed_html, 'changed': changed_html}
 
 
-def config_changes_stats(changes: dict) -> dict:
+def config_changes_stats(changes: pd.DataFrame) -> dict:
     """Provides counts of changes by type (new, removed, updated) to display.
-
-    Parameters
-    ---------------------
-    changes : dict
-
-    Returns
-    ---------------------
-    stats : dict
     """
     new = changes[changes.summary == NEW_STRING].count().max()
     removed = changes[changes.summary == REMOVED_STRING].count().max()
@@ -330,17 +286,8 @@ def config_changes_stats(changes: dict) -> dict:
     return stats
 
 
-def _df_to_html(df):
+def _df_to_html(df: pd.DataFrame) -> str:
     """Converts DataFrame to HTML table with classes for formatting.
-
-    Parameters
-    ---------------
-    df : pandas.DataFrame
-
-    Returns
-    ---------------
-    str
-        HTML table for display.
     """
     classes = ['table', 'table-hover']
     html_raw = '<div id="config_table">{src}</div>'
@@ -356,10 +303,6 @@ def _df_to_html(df):
 
 def get_all_postgres_parameters() -> set:
     """Returns sorted set of Postgres parameters from all versions.
-
-    Returns
-    ----------------------
-    all_parameters : set
     """
     all_version_data = {}
     all_parameters = set()
@@ -374,15 +317,6 @@ def get_all_postgres_parameters() -> set:
 
 def get_pg_param_over_versions(pg_param: str) -> dict:
     """Return details about pg_param over Postgres major versions.
-
-    Parameters
-    -------------------------
-    pg_param : str
-        Name of the Postgres parameter
-
-    Returns
-    -------------------------
-    param_details : dict
     """
     param_details = {'name': pg_param}
     max_version = max(VERSIONS)
@@ -444,15 +378,6 @@ def get_pg_param_over_versions(pg_param: str) -> dict:
 def history_df_to_html(history: dict, pg_param: str) -> str:
     """Converts a dictionary of details across versions to HTML for display on
     frontend.
-
-    Parameters
-    ------------------------
-    history : dict
-    pg_param : str
-
-    Returns
-    ------------------------
-    history_html : str
     """
     history_df = pd.DataFrame([history])
     history_df['name'] = pg_param
