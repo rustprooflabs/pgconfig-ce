@@ -8,8 +8,8 @@ from webapp import app, pgconfig
 LOGGER = logging.getLogger(__name__)
 
 
-VERSION_PRIOR = '17'
-VERSION_CURRENT = '18'
+VERSION_PRIOR = '18'
+VERSION_CURRENT = '19'
 
 
 def get_year():
